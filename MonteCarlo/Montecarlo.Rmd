@@ -1,0 +1,148 @@
+---
+title: "MonteCarlo test"
+author: "Juan A. Dominguez J."
+date: "19/9/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introducion
+
+This document contains the info related to the session about some introductory examples for understanding the Montecarlo simulation method. This one is a tool to learn basic concepts in statistics & probability.
+
+The Montecarlo method falls under the rubric of **Parametric bootstrap** that is quite different than the **non-parametric bootstrap**, which uses resampling of the original data to generate empirical sampling distributions
+
+
+#####  Importing the library
+```{r,warning =FALSE,comment='', tidy=TRUE, message=FALSE}
+library(MonteCarlo)
+````
+
+#####  Generating random numbers
+
+Generating 1000 random numbers by using one of the many useful facilities that R offer to us.
+
+```{r message=FALSE, eval=FALSE}
+runif(n=1000,min=0,max=1)
+```
+
+Ok, so now is pretty interesant to look the behaviour of these generated data. By using the `par()` function
+```{r}
+#If we wanted to look at 100 draws from a normal distribution with u=5 and std=2, e.g. N(5,2)
+random.normal.100 <- rnorm(n=100,mean=5,sd=2)
+#The par function is useful when we need to modify low-level plotting funcionts
+par(mfrow=c(1,3))
+plot(random.normal.100)
+boxplot(random.normal.100)
+hist(random.normal.100)
+```
+
+##### Look at the mean and std computed 
+```{r}
+mean(random.normal.100)
+sd(random.normal.100)
+````
+*Results are closed to the theoretical ones establisteds*
+
+-------
+Now if we want to make more than just one simulation, let's use the `replicate` fucntion. In this case, we will replicate them by 5 times.
+```{r}
+random.normal.100.rep <- replicate(n=5,rnorm(100,5,2))
+````
+
+Several times!!
+```{r eval=FALSE,}
+par(mfrow=c(2,2))
+#Apply() allow us to call several times one specific function (hist, mean, sd) by columns (MARGIN = 2), if this one would 1, it means Rows.
+apply(X=random.normal.100.rep, MARGIN = 2, FUN= hist)
+apply(X=random.normal.100.rep, MARGIN = 2, FUN= mean)
+apply(X=random.normal.100.rep, MARGIN = 2, FUN= sd)
+````
+
+Summarizing them
+```{r }
+summary(random.normal.100.rep)
+````
+
+So, let's compute the SD among these results
+
+````{r comment=""}
+sd(apply(random.normal.100.rep,2,mean))
+```
+*Results show that there is not so much SD among data*
+
+##### Let's repeat but in this case with a lower sample (25)
+
+````{r comment=""}
+nom.sim.25 <- replicate(n=5,rnorm(25,5,2))
+sd(apply(nom.sim.25,2,mean))
+```
+
+#####  Let's repeat but in this case with a larger sample (1000)
+
+````{r comment=""}
+nom.sim.1000 <- replicate(n=5,rnorm(1000,5,2))
+sd(apply(nom.sim.1000,2,mean))
+```
+
+
+At this moment, we have just learned about Montecarlo method. It was clear that when we perform simulations specially with distributions , as our n increases we will get closer to the expected value.
+
+
+## Applications
+
+##### Computing the area under the curve
+
+Let's supose that we have a function `f(x)=1-x^2`. For computing its area, just compute the integral and define the limits.
+
+$$
+Area = \int_0^1 (1-x^2)dx\,=0.66
+$$
+Generating some random data
+```{r}
+randi<- runif(n=1000,min=0,max=1)
+````
+
+Computing the theoretical area some random data
+```{r}
+area.t <- 1 - randi^2
+plot(randi,area.t,pch=16)
+````
+
+Generating some other random data
+```{r}
+randi2<- runif(n=1000,min=0,max=1)
+plot(randi2,col="orange")
+par(new=TRUE)
+plot(randi,area.t, pch=15, col="black")
+````
+
+Computing these other random data that are belongs to the desired area
+
+```{r}
+belongs.area<-ifelse(randi2 < area.t, randi2,NA)
+plot(randi2,col="orange")
+parcl(new=TRUE)
+plot(randi,belongs.area ,col="blue" )
+par(new=TRUE)
+plot(randi,area.t ,col="black" )
+
+```
+
+So, computing the number of success into the all posibles results:
+
+```{r}
+mean(randi2<area.t)
+```
+This result is so much closer to the theoretical value computed by the analytic solution of the integral before mentioned
+
+
+##### Computing the area under the curve
+
+# plotting the density function of a normal distribution: N(2, .25)
+x <- seq(, 120, 1)
+
+plot(x, dnorm(x, 2, 0.5), type = "l"
