@@ -125,7 +125,7 @@ Computing these other random data that are belongs to the desired area
 ```{r}
 belongs.area<-ifelse(randi2 < area.t, randi2,NA)
 plot(randi2,col="orange")
-parcl(new=TRUE)
+par(new=TRUE)
 plot(randi,belongs.area ,col="blue" )
 par(new=TRUE)
 plot(randi,area.t ,col="black" )
